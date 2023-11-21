@@ -4,6 +4,8 @@
  */
 package frontend;
 
+import entities.Cartao;
+import entities.Cliente;
 import javax.swing.JOptionPane;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
@@ -20,8 +22,22 @@ public class FrmCartaoCad extends javax.swing.JFrame {
      */
     public FrmCartaoCad() {
         initComponents();
+        loadClientes();
     }
 
+    public void loadClientes() {
+        RestTemplate req = new RestTemplate();
+        
+        ResponseEntity<Cliente[]> response = req.getForEntity(
+                "http://localhost:8080/clientes", Cliente[].class);
+        
+        Cliente[] clientes = response.getBody();
+        
+        for (var c : clientes) {
+            cbCliente.addItem(c);
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -126,7 +142,27 @@ public class FrmCartaoCad extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
+        Cartao cartao = new Cartao();
         
+        cartao.setCliente((Cliente) cbCliente.getSelectedItem());
+        cartao.setNumero(edtNumero.getText());
+        cartao.setDataVal(edtDataVal.getText());
+        
+        try {
+            RestTemplate req = new RestTemplate();
+            
+            req.postForObject("http://localhost:8080/cartao", 
+                    cartao, Cartao.class);
+            JOptionPane.showMessageDialog(this, "Cartão salvo com sucesso!");
+        } catch (RestClientException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+        
+        this.dispose();
+        
+        FrmCartaoLista frm = new FrmCartaoLista();
+        
+        frm.setVisible(true);
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
     /**

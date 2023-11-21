@@ -4,6 +4,7 @@
  */
 package frontend;
 
+import entities.Cartao;
 import javax.swing.table.DefaultTableModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +20,25 @@ public class FrmCartaoLista extends javax.swing.JFrame {
      */
     public FrmCartaoLista() {
         initComponents();
+        loadTableData();
+    }
+    
+    public void loadTableData() {
+        RestTemplate req = new RestTemplate();
+        
+        ResponseEntity<Cartao[]> response = req.getForEntity(
+                "http://localhost:8080/cartoes", Cartao[].class);
+        
+        Cartao[] cartoes = response.getBody();
+        
+        DefaultTableModel tbl = (DefaultTableModel) tblCartoes.getModel();
+        
+        tbl.setNumRows(0);
+        
+        for (var c : cartoes) {
+            Object[] row = { c.getId(), c.getCliente(), c.getNumero(), c.getDataVal() };
+            tbl.addRow(row);
+        }
     }
 
     /**
